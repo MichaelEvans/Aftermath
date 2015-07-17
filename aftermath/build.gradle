@@ -1,0 +1,20 @@
+apply plugin: 'java'
+apply plugin: 'checkstyle'
+
+configurations {
+    provided
+}
+sourceSets {
+    main { compileClasspath += configurations.provided }
+}
+
+checkstyle {
+    configFile rootProject.file('checkstyle.xml')
+    showViolations true
+    configProperties = ['checkstyle.cache.file': rootProject.file('build/checkstyle.cache')]
+}
+
+dependencies {
+    provided 'com.google.android:android:4.1.1.4'
+
+}
