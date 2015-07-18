@@ -55,6 +55,14 @@ modifyPom {
                 distribution 'repo'
             }
         }
+
+        developers {
+            developer {
+                id 'michaelevans'
+                name 'Michael Evans'
+                email 'michaelcevans10@gmail.com'
+            }
+        }
     }
 }
 
