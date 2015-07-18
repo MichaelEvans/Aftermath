@@ -23,10 +23,25 @@ public void onContactPicked(int resultCode, Intent data) {
 }
 ```
 
-Download
---------
+Setup
+------------
+```groovy
+buildscript {
+    repositories {
+        jcenter() // Also available in maven central
+    }
+    dependencies {
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
+    }
+}
 
-Coming soon to Maven Central.
+apply plugin: 'com.neenbedankt.android-apt'
+
+dependencies {
+    apt 'org.michaelevans:aftermath-processor:0.1.0'
+    compile 'org.michaelevans:aftermath:0.1.0'
+}
+```
 
 License
 -------
