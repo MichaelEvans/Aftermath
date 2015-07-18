@@ -1,12 +1,22 @@
-apply plugin: 'java'
-apply plugin: 'checkstyle'
+apply plugin: 'com.android.library'
 
-configurations {
-    provided
+android {
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        versionName PROJECT_VERSION
+        minSdkVersion 14
+        targetSdkVersion 22
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
 }
-sourceSets {
-    main { compileClasspath += configurations.provided }
-}
+
+apply plugin: 'com.bmuschko.nexus'
+apply plugin: 'checkstyle'
 
 checkstyle {
     configFile rootProject.file('checkstyle.xml')
@@ -14,7 +24,43 @@ checkstyle {
     configProperties = ['checkstyle.cache.file': rootProject.file('build/checkstyle.cache')]
 }
 
-dependencies {
-    provided 'com.google.android:android:4.1.1.4'
+project.group = PROJECT_GROUP_ID
+project.version = PROJECT_VERSION
 
+modifyPom {
+    project {
+        name 'Aftermath library'
+        description PROJECT_DESCRIPTION
+        url PROJECT_URL
+        inceptionYear '2015'
+        version PROJECT_VERSION
+        groupId PROJECT_GROUP_ID
+        artifactId 'aftermath'
+
+        scm {
+            url PROJECT_URL
+            connection 'scm:https://gitub.com/MichaelEvans/Aftermath.git'
+            developerConnection 'scm:git@gitub.com:MichaelEvans/Aftermath.git'
+        }
+
+        licenses {
+            license {
+                name 'The Apache Software License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
+            }
+        }
+    }
+}
+
+extraArchive {
+    sources = true
+    tests = false
+    javadoc = true
+}
+
+nexus {
+    sign = !isCi()
+    repositoryUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+    snapshotRepositoryUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
 }
