@@ -22,6 +22,7 @@ final class BindingClass {
     private final String className;
     private final String targetClass;
     private final Map<Integer, OnActivityResultBinding> activityResultBindings;
+    private final Map<String, OnActivityResultBinding> activityResultBindings;
 
     public BindingClass(String classPackage, String className, String targetClass) {
         this.classPackage = classPackage;
@@ -32,11 +33,11 @@ final class BindingClass {
 
     void createAndAddResultBinding(Element element) {
         OnActivityResultBinding binding = new OnActivityResultBinding(element);
-        if (activityResultBindings.containsKey(binding.requestCode)) {
+        if (activityResultBindings.containsKey(binding.name)) {
             throw new IllegalStateException(String.format("Duplicate attr assigned for field %s and %s", binding.name,
-                    activityResultBindings.get(binding.requestCode).name));
+                    activityResultBindings.get(binding.name)));
         } else {
-            activityResultBindings.put(binding.requestCode, binding);
+            activityResultBindings.put(binding.name, binding);
         }
     }
 
@@ -66,8 +67,8 @@ final class BindingClass {
 
         if (!activityResultBindings.isEmpty()) {
             for (OnActivityResultBinding binding : activityResultBindings.values()) {
-                builder.beginControlFlow("if (requestCode == $L)", binding.requestCode);
-                builder.addStatement("target.$L(resultCode, data)", binding.name);
+                builder.beginControlFlow("if ((requestCode == $L) && (resultCode == $L))",
+                        binding.requestCode, binding.resultCode);
                 builder.endControlFlow();
             }
         }
@@ -79,10 +80,12 @@ final class BindingClass {
 
         final String name;
         final int requestCode;
+        final int resultCode;
 
         public OnActivityResultBinding(Element element) {
             OnActivityResult instance = element.getAnnotation(OnActivityResult.class);
             this.requestCode = instance.value();
+            this.resultCode = instance.resultCode();
 
             ExecutableElement executableElement = (ExecutableElement) element;
             name = executableElement.getSimpleName().toString();
