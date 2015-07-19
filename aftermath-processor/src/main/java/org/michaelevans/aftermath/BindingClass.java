@@ -9,19 +9,20 @@ import com.squareup.javapoet.TypeVariableName;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.VariableElement;
 
 final class BindingClass {
 
     private final String classPackage;
     private final String className;
     private final String targetClass;
-    private final Map<Integer, OnActivityResultBinding> activityResultBindings;
     private final Map<String, OnActivityResultBinding> activityResultBindings;
 
     public BindingClass(String classPackage, String className, String targetClass) {
@@ -69,6 +70,13 @@ final class BindingClass {
             for (OnActivityResultBinding binding : activityResultBindings.values()) {
                 builder.beginControlFlow("if ((requestCode == $L) && (resultCode == $L))",
                         binding.requestCode, binding.resultCode);
+
+                if (binding.hasIntentParam()) {
+                    builder.addStatement("target.$L(data)", binding.name);
+                } else {
+                    builder.addStatement("target.$L()", binding.name);
+                }
+
                 builder.endControlFlow();
             }
         }
@@ -81,6 +89,7 @@ final class BindingClass {
         final String name;
         final int requestCode;
         final int resultCode;
+        final List<? extends VariableElement> methodParams;
 
         public OnActivityResultBinding(Element element) {
             OnActivityResult instance = element.getAnnotation(OnActivityResult.class);
@@ -89,6 +98,17 @@ final class BindingClass {
 
             ExecutableElement executableElement = (ExecutableElement) element;
             name = executableElement.getSimpleName().toString();
+
+            methodParams = executableElement.getParameters();
+        }
+
+        public boolean hasIntentParam() {
+            for (VariableElement element : methodParams) {
+                if ("android.content.Intent".equals(element.asType().toString())) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
