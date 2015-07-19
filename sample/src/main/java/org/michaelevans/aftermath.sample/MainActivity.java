@@ -2,12 +2,9 @@ package org.michaelevans.aftermath.sample;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -17,7 +14,7 @@ import org.michaelevans.aftermath.OnActivityResult;
 public class MainActivity extends AppCompatActivity {
 
     static final int PICK_CONTACT_REQUEST = 1;
-    static final int OTHER_REQUSET = 2;
+    static final int OTHER_REQUEST = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,17 +28,18 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    @OnActivityResult(PICK_CONTACT_REQUEST)
-    public void onContactPicked(int resultCode, Intent data) {
-        if(resultCode == RESULT_OK) {
-            Toast.makeText(this, "Contact picked: " + data.getData(), Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Result wasn't okay", Toast.LENGTH_SHORT).show();
-        }
+    @OnActivityResult(PICK_CONTACT_REQUEST) //resultCode defaults to RESULT_OK
+    public void onContactPickedSuccessfully(Intent data) {
+        Toast.makeText(this, "Contact picked: " + data.getData(), Toast.LENGTH_SHORT).show();
     }
 
-    @OnActivityResult(OTHER_REQUSET)
-    public void onOtherRequest(int resultCode, Intent data) {
+    @OnActivityResult(value = PICK_CONTACT_REQUEST)
+    public void onContactPickedFailed() { //Intent parameter is optional
+        Toast.makeText(this, "Result wasn't okay", Toast.LENGTH_SHORT).show();
+    }
+
+    @OnActivityResult(OTHER_REQUEST)
+    public void onOtherRequest(Intent data) {
         Toast.makeText(this, "Some other request", Toast.LENGTH_SHORT).show();
     }
 
