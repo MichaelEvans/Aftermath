@@ -1,6 +1,8 @@
 Aftermath
 =========
 
+[![Build Status](https://travis-ci.org/MichaelEvans/Aftermath.svg)](https://travis-ci.org/MichaelEvans/Aftermath)
+
 Aftermath handles the consequences of your `startActivityForResult` calls.
 
 ```java
