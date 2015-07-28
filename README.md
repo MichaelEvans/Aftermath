@@ -2,6 +2,7 @@ Aftermath
 =========
 
 [![Build Status](https://travis-ci.org/MichaelEvans/Aftermath.svg)](https://travis-ci.org/MichaelEvans/Aftermath)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Aftermath-green.svg?style=flat)](https://android-arsenal.com/details/1/2176)
 
 Aftermath handles the consequences of your `startActivityForResult` calls.
 
