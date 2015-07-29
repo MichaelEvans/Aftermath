@@ -3,4 +3,9 @@
     <string name="title_activity_main">MainActivity</string>
 
     <string name="hello_world">Hello world!</string>
+    <string name="get_photo_uri">Get Photo URI</string>
+    <string name="get_contact_uri">Get Contact Uri</string>
+    <string name="an_error_has_occurred">an error has occurred</string>
+    <string name="pick_a_contact">Pick a contact</string>
+    <string name="pick_a_photo">Pick a photo</string>
 </resources>
