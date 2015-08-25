@@ -5,15 +5,6 @@ sourceCompatibility = 1.7
 apply plugin: 'com.bmuschko.nexus'
 apply plugin: 'checkstyle'
 
-// HACK! Java projects can't depend on Android Library projects
-sourceSets {
-    main {
-        java {
-            srcDirs = ['src/main/java', '../aftermath/src/main/java']
-        }
-    }
-}
-
 dependencies {
     compile 'com.google.android:android:4.1.1.4'
     compile 'com.google.auto.service:auto-service:1.0-rc2'
@@ -77,4 +68,8 @@ nexus {
     sign = !isCi()
     repositoryUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
     snapshotRepositoryUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
+}
+
+dependencies {
+    compile project(':aftermath-annotations')
 }

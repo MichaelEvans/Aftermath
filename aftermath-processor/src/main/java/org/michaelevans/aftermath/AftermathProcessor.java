@@ -82,7 +82,7 @@ public final class AftermathProcessor extends AbstractProcessor {
         if (bindingClass == null) {
             String targetType = enclosingElement.getQualifiedName().toString();
             String classPackage = getPackageName(enclosingElement);
-            String className = getClassName(enclosingElement, classPackage) + Aftermath.SUFFIX;
+            String className = getClassName(enclosingElement, classPackage) + "$$Aftermath";
             bindingClass = new BindingClass(classPackage, className, targetType);
             targetClassMap.put(enclosingElement, bindingClass);
             erasedTargetNames.add(enclosingElement.toString());

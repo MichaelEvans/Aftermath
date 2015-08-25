@@ -47,7 +47,8 @@ final class BindingClass {
                 .addTypeVariable(TypeVariableName.get("T", targetClassName))
                 .addMethod(generateOnActivityResultMethod());
 
-        aftermath.addSuperinterface(ParameterizedTypeName.get(ClassName.get(Aftermath.IOnActivityForResult.class),
+        ClassName callback = ClassName.get("org.michaelevans.aftermath", "IOnActivityForResult");
+        aftermath.addSuperinterface(ParameterizedTypeName.get(callback,
                 TypeVariableName.get("T")));
 
         JavaFile javaFile = JavaFile.builder(classPackage, aftermath.build()).build();

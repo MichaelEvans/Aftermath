@@ -68,11 +68,4 @@ public final class Aftermath {
         return aftermath;
     }
 
-    /**
-     * DO NOT USE. Exposed for generated classes' use.
-     */
-    public interface IOnActivityForResult<T> {
-        @SuppressWarnings("unused")
-        void onActivityResult(final T target, int requestCode, int resultCode, Intent data);
-    }
 }

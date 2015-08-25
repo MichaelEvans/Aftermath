@@ -1,1 +1,1 @@
-include ':sample', ':aftermath', ':aftermath-processor'
+include ':sample', ':aftermath', ':aftermath-processor', ':aftermath-annotations'
