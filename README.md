@@ -1,3 +1,5 @@
+[![Android Gems](http://www.android-gems.com/badge/MichaelEvans/Aftermath.svg?branch=master)](http://www.android-gems.com/lib/MichaelEvans/Aftermath)
+
 Aftermath
 =========
 
