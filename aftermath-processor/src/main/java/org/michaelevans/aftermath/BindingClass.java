@@ -66,11 +66,17 @@ final class BindingClass {
                 .addParameter(ClassName.get("android.content", "Intent"), "data", Modifier.FINAL);
 
         if (!activityResultBindings.isEmpty()) {
+            boolean first = true;
             for (OnActivityResultBinding binding : activityResultBindings.values()) {
-                builder.beginControlFlow("if (requestCode == $L)", binding.requestCode);
+                if (first) {
+                    builder.beginControlFlow("if (requestCode == $L)", binding.requestCode);
+                    first = false;
+                } else {
+                    builder.nextControlFlow("else if (requestCode == $L)", binding.requestCode);
+                }
                 builder.addStatement("target.$L(resultCode, data)", binding.name);
-                builder.endControlFlow();
             }
+            builder.endControlFlow();
         }
 
         return builder.build();

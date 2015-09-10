@@ -5,3 +5,12 @@
 .DS_Store
 /build
 /captures
+.idea/
+
+Aftermath.iml
+aftermath/aftermath.iml
+sample/sample.iml
+aftermath-annotations/aftermath-annotations.iml
+aftermath-processor/aftermath-processor.iml
+
+
