@@ -75,11 +75,11 @@ public final class AftermathProcessor extends AbstractProcessor {
             }
         }
 
-        if(!aftermathHelperGenerated){
+        if (!aftermathHelperGenerated) {
             AftermathHelperGenerator aftermathHelperGenerator = new AftermathHelperGenerator(targetClassMap);
             try {
                 aftermathHelperGenerator.writeToFiler(aftermathHelperGenerator.createAftermathHelper(), filer);
-                aftermathHelperGenerated= true;
+                aftermathHelperGenerated = true;
             } catch (IOException e) {
                 messager.printMessage(Diagnostic.Kind.ERROR, e.getMessage());
             }

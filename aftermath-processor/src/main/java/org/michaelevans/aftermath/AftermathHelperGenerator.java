@@ -39,17 +39,31 @@ public class AftermathHelperGenerator {
         MethodSpec.Builder builder = MethodSpec.methodBuilder("onActivityResult")
                                                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                                                .returns(void.class)
-                                               .addParameter(ParameterSpec.builder(Object.class, "target", Modifier.FINAL).build())
-                                               .addParameter(ParameterSpec.builder(int.class, "requestCode", Modifier.FINAL).build())
-                                               .addParameter(ParameterSpec.builder(int.class, "resultCode", Modifier.FINAL).build())
-                                               .addParameter(ParameterSpec.builder(intentClass, "data", Modifier.FINAL).build());
+                                               .addParameter(ParameterSpec.builder(Object.class,
+                                                                                   "target",
+                                                                                   Modifier.FINAL)
+                                                                          .build())
+                                               .addParameter(ParameterSpec.builder(int.class,
+                                                                                   "requestCode",
+                                                                                   Modifier.FINAL)
+                                                                          .build())
+                                               .addParameter(ParameterSpec.builder(int.class,
+                                                                                   "resultCode",
+                                                                                   Modifier.FINAL)
+                                                                          .build())
+                                               .addParameter(ParameterSpec.builder(intentClass,
+                                                                                   "data",
+                                                                                   Modifier.FINAL)
+                                                                          .build());
 
         for (TypeElement type : targetClassMap.keySet()) {
             ClassName activityClass = ClassName.get(type);
             builder.beginControlFlow("if(target instanceof $T)", activityClass);
             BindingClass bindingClass = targetClassMap.get(type);
-            ClassName generatedAftermathClass = ClassName.get(bindingClass.getClassPackage(), bindingClass.getClassName());
-            builder.addStatement("$T.onActivityResult(($T) target, requestCode, resultCode, data)", generatedAftermathClass, activityClass);
+            ClassName generatedAftermathClass = ClassName.get(bindingClass.getClassPackage(),
+                                                              bindingClass.getClassName());
+            builder.addStatement("$T.onActivityResult(($T) target, requestCode, resultCode, data)",
+                                 generatedAftermathClass, activityClass);
             builder.endControlFlow();
         }
         return builder.build();
