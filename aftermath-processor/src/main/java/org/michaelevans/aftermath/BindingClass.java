@@ -3,9 +3,8 @@ package org.michaelevans.aftermath;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeSpec;
-import com.squareup.javapoet.TypeVariableName;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -43,24 +42,18 @@ final class BindingClass {
     void writeToFiler(Filer filer) throws IOException {
         ClassName targetClassName = ClassName.get(classPackage, targetClass);
         TypeSpec.Builder aftermath = TypeSpec.classBuilder(className)
-                .addModifiers(Modifier.PUBLIC)
-                .addTypeVariable(TypeVariableName.get("T", targetClassName))
-                .addMethod(generateOnActivityResultMethod());
-
-        ClassName callback = ClassName.get("org.michaelevans.aftermath", "IOnActivityForResult");
-        aftermath.addSuperinterface(ParameterizedTypeName.get(callback,
-                TypeVariableName.get("T")));
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addMethod(generateOnActivityResultMethod(targetClassName));
 
         JavaFile javaFile = JavaFile.builder(classPackage, aftermath.build()).build();
         javaFile.writeTo(filer);
     }
 
-    private MethodSpec generateOnActivityResultMethod() {
+    private MethodSpec generateOnActivityResultMethod(ClassName targetClassName) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder("onActivityResult")
-                .addAnnotation(Override.class)
-                .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .returns(void.class)
-                .addParameter(TypeVariableName.get("T"), "target", Modifier.FINAL)
+                .addParameter(ParameterSpec.builder(targetClassName, "target", Modifier.FINAL).build())
                 .addParameter(int.class, "requestCode", Modifier.FINAL)
                 .addParameter(int.class, "resultCode", Modifier.FINAL)
                 .addParameter(ClassName.get("android.content", "Intent"), "data", Modifier.FINAL);
@@ -80,6 +73,14 @@ final class BindingClass {
         }
 
         return builder.build();
+    }
+
+    public String getClassPackage() {
+        return classPackage;
+    }
+
+    public String getClassName() {
+        return className;
     }
 
     private class OnActivityResultBinding {

@@ -28,6 +28,7 @@ public final class AftermathProcessor extends AbstractProcessor {
     private Filer filer;
     private Messager messager;
     public Elements elementUtils;
+    private boolean aftermathHelperGenerated;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -69,6 +70,16 @@ public final class AftermathProcessor extends AbstractProcessor {
         for (BindingClass bindingClass : targetClassMap.values()) {
             try {
                 bindingClass.writeToFiler(filer);
+            } catch (IOException e) {
+                messager.printMessage(Diagnostic.Kind.ERROR, e.getMessage());
+            }
+        }
+
+        if(!aftermathHelperGenerated){
+            AftermathHelperGenerator aftermathHelperGenerator = new AftermathHelperGenerator(targetClassMap);
+            try {
+                aftermathHelperGenerator.writeToFiler(aftermathHelperGenerator.createAftermathHelper(), filer);
+                aftermathHelperGenerated= true;
             } catch (IOException e) {
                 messager.printMessage(Diagnostic.Kind.ERROR, e.getMessage());
             }
