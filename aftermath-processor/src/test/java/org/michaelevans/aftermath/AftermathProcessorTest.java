@@ -3,7 +3,6 @@ package org.michaelevans.aftermath;
 import com.google.common.base.Joiner;
 import com.google.testing.compile.JavaFileObjects;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.tools.JavaFileObject;
@@ -13,7 +12,6 @@ import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 
 public final class AftermathProcessorTest {
 
-    @Ignore
     @Test
     public void testProcessor() {
         JavaFileObject sampleActivity = JavaFileObjects.forSourceString("com.example.MainActivity",
@@ -32,13 +30,10 @@ public final class AftermathProcessorTest {
                         "package com.example;",
                         "",
                         "import android.content.Intent;",
-                        "import java.lang.Override;",
-                        "import org.michaelevans.aftermath.Aftermath;",
                         "",
-                        "public class MainActivity$$Aftermath<T extends com.example.MainActivity>"
-                                + " implements Aftermath.IOnActivityForResult<T> {",
-                        "    @Override",
-                        "    public void onActivityResult(final T target, final int requestCode,"
+                        "public final class MainActivity$$Aftermath {",
+                        "    public static void onActivityResult("
+                                + "final com.example.MainActivity target, final int requestCode,"
                                 + " final int resultCode, final Intent data) {",
                         "        if(requestCode == 1) {",
                         "            target.onContactPicked(resultCode, data);",
@@ -46,11 +41,37 @@ public final class AftermathProcessorTest {
                         "    }",
                         "}"));
 
+        JavaFileObject expectedAftermath =
+                JavaFileObjects.forSourceString("Aftermath",
+                                                "package org.michaelevans.aftermath;\n"
+                                                        + "\n"
+                                                        + "import android.content.Intent;\n"
+                                                        + "import com.example.MainActivity;\n"
+                                                        + "import "
+                                                        + "com.example.MainActivity$$Aftermath;\n"
+                                                        + "import java.lang.Object;\n"
+                                                        + "\n"
+                                                        + "public final class Aftermath {\n"
+                                                        + "  public static void onActivityResult("
+                                                        + "final Object target, "
+                                                        + "final int requestCode, "
+                                                        + "final int resultCode, "
+                                                        + "final Intent data) {\n"
+                                                        + "    if(target instanceof MainActivity) {"
+                                                        + "\n"
+                                                        + "      MainActivity$$Aftermath"
+                                                        + ".onActivityResult((MainActivity) target, "
+                                                        + "requestCode, resultCode, data);\n"
+                                                        + "    }\n"
+                                                        + "  }\n"
+                                                        +
+                                                        "}");
+
         assert_().about(javaSource())
                 .that(sampleActivity)
                 .processedWith(new AftermathProcessor())
                 .compilesWithoutError()
                 .and()
-                .generatesSources(expectedSource);
+                .generatesSources(expectedSource, expectedAftermath);
     }
 }

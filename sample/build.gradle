@@ -44,7 +44,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.0.0'
 
     apt project(':aftermath-processor')
-    compile project(':aftermath')
+    compile project(':aftermath-annotations')
 
     androidTestCompile 'com.android.support.test:runner:0.3'
     androidTestCompile 'com.android.support.test:rules:0.3'
