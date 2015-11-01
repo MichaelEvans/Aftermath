@@ -21,22 +21,28 @@ final class BindingClass {
     private final String classPackage;
     private final String className;
     private final String targetClass;
-    private final Map<Integer, OnActivityResultBinding> activityResultBindings;
+    private final Map<Integer, Map<Integer, MethodBinding>> bindings;
 
     public BindingClass(String classPackage, String className, String targetClass) {
         this.classPackage = classPackage;
         this.className = className;
         this.targetClass = targetClass;
-        this.activityResultBindings = new HashMap<>();
+        this.bindings = new HashMap<>();
     }
 
-    void createAndAddResultBinding(Element element) {
-        OnActivityResultBinding binding = new OnActivityResultBinding(element);
-        if (activityResultBindings.containsKey(binding.requestCode)) {
+    void createAndAddResultBinding(Element element, String annotationClass) {
+        MethodBinding binding = MethodBinding.newInstance(element, annotationClass);
+        Map<Integer, MethodBinding> methodBindings = bindings.get(binding.type);
+        if (methodBindings == null) {
+            methodBindings = new HashMap<>();
+            bindings.put(binding.type, methodBindings);
+        }
+
+        if (methodBindings.containsKey(binding.requestCode)) {
             throw new IllegalStateException(String.format("Duplicate attr assigned for field %s and %s", binding.name,
-                    activityResultBindings.get(binding.requestCode).name));
+                    methodBindings.get(binding.requestCode).name));
         } else {
-            activityResultBindings.put(binding.requestCode, binding);
+            methodBindings.put(binding.requestCode, binding);
         }
     }
 
@@ -45,9 +51,10 @@ final class BindingClass {
         TypeSpec.Builder aftermath = TypeSpec.classBuilder(className)
                 .addModifiers(Modifier.PUBLIC)
                 .addTypeVariable(TypeVariableName.get("T", targetClassName))
-                .addMethod(generateOnActivityResultMethod());
+                .addMethod(generateOnActivityResultMethod())
+                .addMethod(generateOnRequestPermissionResultMethod());
 
-        ClassName callback = ClassName.get("org.michaelevans.aftermath", "IOnActivityForResult");
+        ClassName callback = ClassName.get("org.michaelevans.aftermath", "IAftermathDelegate");
         aftermath.addSuperinterface(ParameterizedTypeName.get(callback,
                 TypeVariableName.get("T")));
 
@@ -64,10 +71,10 @@ final class BindingClass {
                 .addParameter(int.class, "requestCode", Modifier.FINAL)
                 .addParameter(int.class, "resultCode", Modifier.FINAL)
                 .addParameter(ClassName.get("android.content", "Intent"), "data", Modifier.FINAL);
-
-        if (!activityResultBindings.isEmpty()) {
+        final Map<Integer, MethodBinding> methodBindings = bindings.get(MethodBinding.onActivityResult);
+        if (methodBindings != null && !methodBindings.isEmpty()) {
             boolean first = true;
-            for (OnActivityResultBinding binding : activityResultBindings.values()) {
+            for (MethodBinding binding : methodBindings.values()) {
                 if (first) {
                     builder.beginControlFlow("if (requestCode == $L)", binding.requestCode);
                     first = false;
@@ -82,17 +89,65 @@ final class BindingClass {
         return builder.build();
     }
 
-    private class OnActivityResultBinding {
+    private MethodSpec generateOnRequestPermissionResultMethod() {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("onRequestPermissionsResult")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .returns(void.class)
+                .addParameter(TypeVariableName.get("T"), "target", Modifier.FINAL)
+                .addParameter(int.class, "requestCode", Modifier.FINAL)
+                .addParameter(String[].class, "permissions", Modifier.FINAL)
+                .addParameter(int[].class, "grantResults", Modifier.FINAL);
 
+        final Map<Integer, MethodBinding> methodBindings = bindings
+                .get(MethodBinding.onPermissionRequestResult);
+        if (methodBindings != null && !methodBindings.isEmpty()) {
+            boolean first = true;
+            for (MethodBinding binding : methodBindings.values()) {
+                if (first) {
+                    builder.beginControlFlow("if (requestCode == $L)", binding.requestCode);
+                    first = false;
+                } else {
+                    builder.nextControlFlow("else if (requestCode == $L)", binding.requestCode);
+                }
+                builder.addStatement("target.$L(permissions, grantResults)", binding.name);
+            }
+            builder.endControlFlow();
+        }
+
+        return builder.build();
+    }
+
+    private static class MethodBinding {
+
+        public static int onActivityResult = 0;
+        public static int onPermissionRequestResult = 1;
         final String name;
         final int requestCode;
+        final int type;
 
-        public OnActivityResultBinding(Element element) {
-            OnActivityResult instance = element.getAnnotation(OnActivityResult.class);
-            this.requestCode = instance.value();
+        public MethodBinding(Element element, int requestCode, int type) {
 
+            this.requestCode = requestCode;
             ExecutableElement executableElement = (ExecutableElement) element;
             name = executableElement.getSimpleName().toString();
+            this.type = type;
+        }
+
+        public static MethodBinding newInstance(Element element, String annotationClass) {
+            final int requestCode;
+            final int type;
+            if (annotationClass.equals(OnActivityResult.class.getSimpleName())) {
+                final OnActivityResult instance = element.getAnnotation(OnActivityResult.class);
+                requestCode = instance.value();
+                type = MethodBinding.onActivityResult;
+            } else {
+                final OnRequestPermissionResult instance = element.getAnnotation(OnRequestPermissionResult.class);
+                requestCode = instance.value();
+                type = MethodBinding.onPermissionRequestResult;
+            }
+            return new MethodBinding(element, requestCode, type);
         }
     }
+
 }

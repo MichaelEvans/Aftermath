@@ -3,7 +3,7 @@ package org.michaelevans.aftermath;
 import com.google.auto.service.AutoService;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -39,7 +39,10 @@ public final class AftermathProcessor extends AbstractProcessor {
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
-        return Collections.singleton(OnActivityResult.class.getCanonicalName());
+        final Set<String> annotations = new HashSet<>();
+        annotations.add(OnActivityResult.class.getCanonicalName());
+        annotations.add(OnRequestPermissionResult.class.getCanonicalName());
+        return annotations;
     }
 
     @Override
@@ -49,31 +52,37 @@ public final class AftermathProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        Map<TypeElement, BindingClass> targetClassMap = new LinkedHashMap<TypeElement, BindingClass>();
-        Set<String> erasedTargetNames = new LinkedHashSet<String>();
+        if (!annotations.isEmpty()) {
+            Map<TypeElement, BindingClass> targetClassMap = new LinkedHashMap<TypeElement, BindingClass>();
+            Set<String> erasedTargetNames = new LinkedHashSet<String>();
 
-        for (Element element : roundEnv.getElementsAnnotatedWith(OnActivityResult.class)) {
-            try {
-                if (element.getKind() != ElementKind.METHOD) {
-                    error(element, "OnActivityResult annotations can only be applied to methods!");
-                    return false;
+            for (TypeElement typeElement : annotations) {
+                for (Element element : roundEnv.getElementsAnnotatedWith(typeElement)) {
+                    try {
+                        if (element.getKind() != ElementKind.METHOD) {
+                            error(element, "OnActivityResult annotations can only be applied to methods!");
+                            return false;
+                        }
+                        TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
+                        BindingClass bindingClass =
+                                getOrCreateAftermath(targetClassMap, enclosingElement, erasedTargetNames);
+                        bindingClass.createAndAddResultBinding(element, typeElement.getSimpleName().toString());
+                    } catch (Exception e) {
+                        error(element, "Unable to generate activity result binder.\n\n%s", e.getMessage());
+                    }
                 }
-                TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
-                BindingClass bindingClass = getOrCreateAftermath(targetClassMap, enclosingElement, erasedTargetNames);
-                bindingClass.createAndAddResultBinding(element);
-            } catch (Exception e) {
-                error(element, "Unable to generate activity result binder.\n\n%s", e.getMessage());
             }
-        }
 
-        for (BindingClass bindingClass : targetClassMap.values()) {
-            try {
-                bindingClass.writeToFiler(filer);
-            } catch (IOException e) {
-                messager.printMessage(Diagnostic.Kind.ERROR, e.getMessage());
+            for (BindingClass bindingClass : targetClassMap.values()) {
+                try {
+                    bindingClass.writeToFiler(filer);
+                } catch (IOException e) {
+                    messager.printMessage(Diagnostic.Kind.ERROR, e.getMessage());
+                }
             }
         }
         return true;
+
     }
 
     private BindingClass getOrCreateAftermath(Map<TypeElement, BindingClass> targetClassMap,

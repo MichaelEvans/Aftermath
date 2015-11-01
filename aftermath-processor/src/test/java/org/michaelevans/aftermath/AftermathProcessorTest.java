@@ -19,11 +19,15 @@ public final class AftermathProcessorTest {
         JavaFileObject sampleActivity = JavaFileObjects.forSourceString("com.example.MainActivity",
                 "package com.example;"
                         + "import org.michaelevans.aftermath.OnActivityResult;"
+                        + "import org.michaelevans.aftermath.OnRequestPermissionResult;"
                         + "import android.content.Intent;"
                         + "public class MainActivity {"
                         + "static final int PICK_CONTACT_REQUEST = 1;"
+                        + "static final int GET_ACCOUNTS_PERMISSION_REQUEST = 1;"
                         + "@OnActivityResult(PICK_CONTACT_REQUEST) public void onContactPicked("
                         + "int resultCode, Intent data) {}"
+                        + "@OnRequestPermissionResult(GET_ACCOUNTS_PERMISSION_REQUEST) public void onPermissionGot("
+                        + "String[] permissions, int[] grantResults) {}"
                         + "}"
         );
 
@@ -36,12 +40,20 @@ public final class AftermathProcessorTest {
                         "import org.michaelevans.aftermath.Aftermath;",
                         "",
                         "public class MainActivity$$Aftermath<T extends com.example.MainActivity>"
-                                + " implements Aftermath.IOnActivityForResult<T> {",
+                                + " implements Aftermath.IAftermathDelegate<T> {",
                         "    @Override",
                         "    public void onActivityResult(final T target, final int requestCode,"
                                 + " final int resultCode, final Intent data) {",
                         "        if(requestCode == 1) {",
                         "            target.onContactPicked(resultCode, data);",
+                        "        }",
+                        "    }",
+                        "",
+                        "    @Override",
+                        "    public void onRequestPermissionsResult(final T target, final int requestCode,"
+                                + " final String[] permissions, final int[] grantResults) {",
+                        "        if (requestCode == 1) {",
+                        "            target.onPermissionGot(permissions, grantResults);",
                         "        }",
                         "    }",
                         "}"));
@@ -53,4 +65,6 @@ public final class AftermathProcessorTest {
                 .and()
                 .generatesSources(expectedSource);
     }
+
+
 }
