@@ -7,4 +7,7 @@
     <string name="an_error_has_occurred">an error has occurred</string>
     <string name="pick_a_contact">Pick a contact</string>
     <string name="pick_a_photo">Pick a photo</string>
+    <string name="accounts_permission_request_information">This application requires a permission
+    for your user accounts information in order to work properly.</string>
+    <string name="permission_granted_message">Permission granted</string>
 </resources>
