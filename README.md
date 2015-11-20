@@ -41,8 +41,8 @@ buildscript {
 apply plugin: 'com.neenbedankt.android-apt'
 
 dependencies {
-    apt 'org.michaelevans:aftermath-processor:0.1.0'
-    compile 'org.michaelevans:aftermath:0.1.0'
+    apt 'org.michaelevans:aftermath-processor:0.3.0'
+    compile 'org.michaelevans:aftermath:0.3.0'
 }
 ```
 
