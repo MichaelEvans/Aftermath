@@ -9,3 +9,5 @@ checkstyle {
     showViolations true
     configProperties = ['checkstyle.cache.file': rootProject.file('build/checkstyle.cache')]
 }
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
