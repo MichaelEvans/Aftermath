@@ -34,15 +34,15 @@ buildscript {
         jcenter() // Also available in maven central
     }
     dependencies {
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
 
 apply plugin: 'com.neenbedankt.android-apt'
 
 dependencies {
-    apt 'org.michaelevans:aftermath-processor:0.3.0'
-    compile 'org.michaelevans:aftermath:0.3.0'
+    apt 'org.michaelevans:aftermath-processor:0.3.1'
+    compile 'org.michaelevans:aftermath:0.3.1'
 }
 ```
 
