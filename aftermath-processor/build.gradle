@@ -1,9 +1,7 @@
 apply plugin: 'java'
+apply plugin: 'checkstyle'
 
 sourceCompatibility = 1.7
-
-apply plugin: 'com.bmuschko.nexus'
-apply plugin: 'checkstyle'
 
 dependencies {
     compile 'com.google.android:android:4.1.1.4'
@@ -24,52 +22,8 @@ checkstyle {
     configProperties = ['checkstyle.cache.file': rootProject.file('build/checkstyle.cache')]
 }
 
-modifyPom {
-    project {
-        name 'Aftermath processor'
-        description PROJECT_DESCRIPTION
-        url PROJECT_URL
-        inceptionYear '2015'
-        version PROJECT_VERSION
-        groupId PROJECT_GROUP_ID
-        artifactId 'aftermath-processor'
-
-        scm {
-            url PROJECT_URL
-            connection 'scm:https://gitub.com/MichaelEvans/Aftermath.git'
-            developerConnection 'scm:git@gitub.com:MichaelEvans/Aftermath.git'
-        }
-
-        licenses {
-            license {
-                name 'The Apache Software License, Version 2.0'
-                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                distribution 'repo'
-            }
-        }
-
-        developers {
-            developer {
-                id 'michaelevans'
-                name 'Michael Evans'
-                email 'michaelcevans10@gmail.com'
-            }
-        }
-    }
-}
-
-extraArchive {
-    sources = true
-    tests = false
-    javadoc = true
-}
-
-nexus {
-    sign = !isCi()
-    repositoryUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
-    snapshotRepositoryUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
-}
-
 dependencies {
     compile project(':aftermath-annotations')
 }
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
